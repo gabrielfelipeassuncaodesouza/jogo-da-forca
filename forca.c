@@ -7,6 +7,10 @@
 char palavrasecreta[TAMANHO_PALAVRA];
 char chutes[26];
 int chutesdados = 0;
+int nivel;
+int pontos = 1000;
+int m = 0;
+
 
 void abertura() {
 
@@ -16,24 +20,77 @@ printf("/****************/\n\n");
 
 }
 
+
+
+void chooselevel() {
+
+
+	printf("\nSelecione o nível de dificuldade: \n");
+	printf("(1) Fácil (2) Médio (3) Difícil ");
+	scanf("%d", &nivel);
+
+	switch(nivel) {
+
+		default:
+			nivel = FACIL;
+			m = 200;
+			break;
+		case 2:
+			nivel = MEDIO;
+			m = 250;
+			break;
+		case 3:
+			nivel = DIFICIL;
+			m = 333;
+			break;
+	}
+}
+
+
+
+
+int letravalida(char letra) {
+
+	int convertletra = (int)letra;
+
+	if(convertletra >= 65 && convertletra <=90) {
+		return 1;
+	}
+	return 0;
+}
+
+
+
+
 void chuta() {
 
-char chute;
+	char chute;
 
-printf("\n\nQual letra? ");
-scanf(" %c", &chute);
+	printf("\n\nQual letra? ");
+	scanf(" %c", &chute);
 
-if(letraexiste(chute)) {
-	printf("\n\n\033[32mVOCÊ ACERTOU :D\033[m\n");
+	if(letravalida(chute)) {
+
+	if(letraexiste(chute)) {
+
+		printf("\n\n\033[32mVOCÊ ACERTOU :D\033[m\n");
+
+	} else {
+        	printf("\n\n\033[31mVOCÊ ERROU :(\033[m\n");
+	}
+
+	chutes[chutesdados] = chute;
+	chutesdados++;
+
 } else {
-	printf("\n\n\033[31mVOCÊ ERROU :(\033[m\n");
+
+	printf("\n\033[31mCARARCTERE INVÁLIDO. USE SOMENTE LETRAS MAIÚSCULAS\033[m\n\n");
+
+}
 }
 
 
-chutes[chutesdados] = chute;
-chutesdados++;
 
-}
 
 int jachutou(char letra) {
 
@@ -49,6 +106,9 @@ for(int j = 0; j < chutesdados; j++) {
 
 	return achou;
 }
+
+
+
 
 void desenhaforca() {
 
@@ -80,6 +140,9 @@ for(int i = 0; i < strlen(palavrasecreta); i++) {
 }
 }
 
+
+
+
 void escolhepalavra() {
 
 	FILE* f;
@@ -103,6 +166,9 @@ void escolhepalavra() {
 	fclose(f);
 }
 
+
+
+
 int letraexiste(char letra) {
 
 	for(int j = 0; j < strlen(palavrasecreta); j++) {
@@ -116,6 +182,9 @@ return 0;
 
 }
 
+
+
+
 int chuteserrados() {
 
 int erros = 0;
@@ -127,15 +196,21 @@ for(int i = 0; i < chutesdados; i++) {
 
 }
 
-return erros;
+	return erros;
 
 }
+
+
+
 
 int enforcou() {
 
-return chuteserrados() >= 5;
+return chuteserrados() >= nivel;
 
 }
+
+
+
 
 int ganhou(){
 
@@ -147,8 +222,44 @@ int ganhou(){
 
 	}
 
-return 1;
+	return 1;
 }
+
+
+
+
+int palavraexiste(char* palavra) {
+
+	FILE* f;
+	f = fopen("palavras.txt", "r");
+
+	int count;
+	char palavraarquivo[TAMANHO_PALAVRA];
+
+	fscanf(f, "%d", &count);
+
+	for(int i = 0; i <= count; i++) {
+
+		fscanf(f, "%s", palavraarquivo);
+		int achou = 0;
+
+		for(int j = 0; j < strlen(palavra); j++) {
+		if(palavraarquivo[j] ==  palavra[j]) {
+			achou = 1;
+		} else {
+			achou = 0;
+		}
+		}
+
+		if (achou == 1){
+
+			return 1;
+		}
+	}
+	return 0;
+}
+
+
 
 void addword() {
 	char quer;
@@ -171,23 +282,63 @@ void addword() {
 		int qtde;
 		fscanf(f, "%d", &qtde);
 
+		if(palavraexiste(novapalavra)) {
+
+		printf("\n\033[33mESSA PALAVRA JÁ EXISTE!\033[m\n\n");
+
+		} else {
+
 		qtde++;
 
 		fseek(f, 0, SEEK_SET);
-		fprintf(f, "%d", qtde);
+		fprintf(f, "%04d", qtde);
 
 		fseek(f, 0, SEEK_END);
 		fprintf(f, "\n%s", novapalavra);
 
 		fclose(f);
+		}
 	}
 }
+
+
+void addranking() {
+
+	char quer;
+	printf("\nDeseja adicionar seu nome no ranking [S/N]? ");
+	scanf(" %c", &quer);
+
+	if (quer == 'S') {
+	char nome[20];
+
+	printf("\nDigite seu nickname: ");
+	scanf("%s", nome);
+
+	FILE* f;
+	f = fopen("ranking.txt", "a");
+
+	fprintf(f, "\n%s %d", nome, pontos);
+	fclose(f);
+	}
+}
+
+
+
+
+void calculapontos() {
+
+	pontos = pontos - (chuteserrados() * m);
+
+}
+
+
 
 
 int main() {
 
 abertura();
 escolhepalavra();
+chooselevel();
 
 do {
 
@@ -196,9 +347,12 @@ chuta();
 
 } while(!ganhou() && !enforcou());
 
+calculapontos();
+
 if(ganhou()) {
 
-printf("\n\033[32mParabéns, você ganhou!\033[m\n\n");
+printf("\n\033[32mParabéns, você ganhou!\033[m");
+printf("\nVoce fez %d pontos!\n\n", pontos);
 printf("\033[33m      ___________ 		\n");
 printf("     '._==_==_=_.' 		\n");
 printf("     .-\\:      /-. 		\n");
@@ -209,6 +363,9 @@ printf("         '::. .' 		\n");
 printf("           ) ( 			\n");
 printf("         _.' '._ 		\n");
 printf("        '-------' 		\033[m\n\n");
+
+addword();
+addranking();
 
 } else {
 
