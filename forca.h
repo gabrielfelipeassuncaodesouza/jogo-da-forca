@@ -3,18 +3,18 @@
 #define MEDIO 4
 #define DIFICIL 3
 
-int enforcou();
+bool enforcou();
 void abertura();
 void chuta();
-int jachutou(char letra);
-int ganhou();
+bool jachutou(char letra);
+bool ganhou();
 void desenhaforca();
 void escolhepalavra();
 void addword();
 int chuteserrados();
-int letraexiste(char letra);
-int letravalida(char letra);
-int palavraexiste(char* palavra);
+bool letraexiste(char letra);
+bool letravalida(int letra);
+bool palavraexiste(char* palavra);
 void chooselevel();
 void calculapontos();
 void addranking();
