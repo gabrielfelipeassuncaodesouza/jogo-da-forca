@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,8 +20,6 @@ printf("/ Jogo de Forca */\n");
 printf("/****************/\n\n");
 
 }
-
-
 
 void chooselevel() {
 
@@ -49,16 +48,13 @@ void chooselevel() {
 
 
 
-int letravalida(char letra) {
+bool letravalida(int letra) {
 
-	int convertletra = (int)letra;
-
-	if(convertletra >= 65 && convertletra <=90) {
-		return 1;
+	if(letra >= 65 && letra <=90) {
+		return true;
 	}
-	return 0;
+	return false;
 }
-
 
 
 
@@ -71,35 +67,28 @@ void chuta() {
 
 	if(letravalida(chute)) {
 
-	if(letraexiste(chute)) {
+		if(letraexiste(chute))
+			printf("\n\n\033[32mVOCÊ ACERTOU :D\033[m\n");
+		else
+        		printf("\n\n\033[31mVOCÊ ERROU :(\033[m\n");
 
-		printf("\n\n\033[32mVOCÊ ACERTOU :D\033[m\n");
+		chutes[chutesdados] = chute;
+		chutesdados++;
 
-	} else {
-        	printf("\n\n\033[31mVOCÊ ERROU :(\033[m\n");
-	}
-
-	chutes[chutesdados] = chute;
-	chutesdados++;
-
-} else {
-
-	printf("\n\033[31mCARARCTERE INVÁLIDO. USE SOMENTE LETRAS MAIÚSCULAS\033[m\n\n");
+	} else
+		printf("\n\033[31mCARARCTERE INVÁLIDO. USE SOMENTE LETRAS MAIÚSCULAS\033[m\n\n");
 
 }
-}
 
 
+bool jachutou(char letra) {
 
+	bool achou = false;
 
-int jachutou(char letra) {
-
-int achou = 0;
-
-for(int j = 0; j < chutesdados; j++) {
+	for(int j = 0; j < chutesdados; j++) {
 
                 if(letra == chutes[j]) {
-                        achou = 1;
+                        achou = true;
                         break;
                 }
         }
@@ -108,39 +97,32 @@ for(int j = 0; j < chutesdados; j++) {
 }
 
 
-
-
 void desenhaforca() {
 
-int erros = chuteserrados();
+	int erros = chuteserrados();
 
-printf(" _______ 	\n");
-printf(" |/ | 		\n");
-printf(" | %c%c%c	\n", (erros>=1?'(':' '),
- (erros>=1? '_':' '),(erros>=1? ')':' '));
-printf(" | %c%c%c 	\n", (erros>=3?'\\':' '),
- (erros>=2?'|':' '), (erros>=3?'/':' '));
-printf(" |  %c 		\n", (erros>=2?'|': ' '));
-printf(" | %c %c 	\n", (erros>=4?'/':' '),
- (erros>=4?'\\':' '));
-printf(" | 		\n");
-printf("_|___ 		\n");
-printf("\n\n");
+	printf(" _______ 	\n");
+	printf(" |/ | 		\n");
+	printf(" | %c%c%c	\n", (erros>=1?'(':' '),
+	 (erros>=1? '_':' '),(erros>=1? ')':' '));
+	printf(" | %c%c%c 	\n", (erros>=3?'\\':' '),
+	 (erros>=2?'|':' '), (erros>=3?'/':' '));
+	printf(" |  %c 		\n", (erros>=2?'|': ' '));
+	printf(" | %c %c 	\n", (erros>=4?'/':' '),
+	 (erros>=4?'\\':' '));
+	printf(" | 		\n");
+	printf("_|___ 		\n");
+	printf("\n\n");
 
-for(int i = 0; i < strlen(palavrasecreta); i++) {
+	for(int i = 0; i < strlen(palavrasecreta); i++) {
 
-        if (jachutou(palavrasecreta[i])) {
+        	if (jachutou(palavrasecreta[i]))
+                	printf("%c", palavrasecreta[i]);
+		else
+        	        printf("_ ");
 
-                printf("%c", palavrasecreta[i]);
-
-	} else {
-                printf("_ ");
-        }
-
+	}
 }
-}
-
-
 
 
 void escolhepalavra() {
@@ -168,105 +150,90 @@ void escolhepalavra() {
 
 
 
-
-int letraexiste(char letra) {
+bool letraexiste(char letra) {
 
 	for(int j = 0; j < strlen(palavrasecreta); j++) {
 
-	if(letra == palavrasecreta[j]) {
-		return 1;
+		if(letra == palavrasecreta[j])
+			return true;
 	}
+
+	return false;
 }
-
-return 0;
-
-}
-
-
 
 
 int chuteserrados() {
 
-int erros = 0;
+	int erros = 0;
 
-for(int i = 0; i < chutesdados; i++) {
+	for(int i = 0; i < chutesdados; i++) {
 
-
-	if(!letraexiste(chutes[i])) erros++;
-
-}
+		if(!letraexiste(chutes[i])) erros++;
+	}
 
 	return erros;
-
 }
 
 
-
-
-int enforcou() {
-
-return chuteserrados() >= nivel;
-
+bool enforcou() {
+	return chuteserrados() >= nivel;
 }
 
 
-
-
-int ganhou(){
+bool ganhou(){
 
 	for(int i=0; i < strlen(palavrasecreta); i++) {
 
 		if(!jachutou(palavrasecreta[i])) {
-			return 0;
+			return false;
 		}
-
 	}
-
-	return 1;
+	return true;
 }
 
 
 
 
-int palavraexiste(char* palavra) {
+bool palavraexiste(char* palavra) {
 
 	FILE* f;
 	f = fopen("palavras.txt", "r");
+	
+	if(f == 0) {
+		printf("Reading error");
+		exit(1);
+	}
 
 	int count;
 	char palavraarquivo[TAMANHO_PALAVRA];
 
 	fscanf(f, "%d", &count);
 
+	bool achou = false;
 	for(int i = 0; i <= count; i++) {
 
 		fscanf(f, "%s", palavraarquivo);
-		int achou = 0;
-
 		for(int j = 0; j < strlen(palavra); j++) {
-		if(palavraarquivo[j] ==  palavra[j]) {
-			achou = 1;
-		} else {
-			achou = 0;
-		}
+			if(palavraarquivo[j] ==  palavra[j])
+				achou = true;
+			else
+				achou = false;
 		}
 
-		if (achou == 1){
-
-			return 1;
-		}
+		if(achou) break;
 	}
-	return 0;
+
+	return achou;
 }
 
-
-
 void addword() {
+
 	char quer;
 	printf("Deseja adicionar uma nova palavra no banco de dados? ");
 	scanf(" %c", &quer);
 
-	if(quer == 'S') {
+	if(quer == 'S' || quer == 's') {
+
 		char novapalavra[TAMANHO_PALAVRA];
 		printf("Digite a nova palavra: ");
 		scanf("%s", novapalavra);
@@ -282,21 +249,18 @@ void addword() {
 		int qtde;
 		fscanf(f, "%d", &qtde);
 
-		if(palavraexiste(novapalavra)) {
+		if(palavraexiste(novapalavra))
+			printf("\n\033[33mESSA PALAVRA JÁ EXISTE!\033[m\n\n");
+		else {
+			qtde++;
 
-		printf("\n\033[33mESSA PALAVRA JÁ EXISTE!\033[m\n\n");
+			fseek(f, 0, SEEK_SET);
+			fprintf(f, "%04d", qtde);
 
-		} else {
+			fseek(f, 0, SEEK_END);
+			fprintf(f, "\n%s", novapalavra);
 
-		qtde++;
-
-		fseek(f, 0, SEEK_SET);
-		fprintf(f, "%04d", qtde);
-
-		fseek(f, 0, SEEK_END);
-		fprintf(f, "\n%s", novapalavra);
-
-		fclose(f);
+			fclose(f);
 		}
 	}
 }
@@ -323,72 +287,71 @@ void addranking() {
 }
 
 
-
-
 void calculapontos() {
-
 	pontos = pontos - (chuteserrados() * m);
+}
 
+void printVitoria()
+{
+
+	printf("\n\033[32mParabéns, você ganhou!\033[m");
+	printf("\nVoce fez %d pontos!\n\n", pontos);
+	printf("\033[33m      ___________ 		\n");
+	printf("     '._==_==_=_.' 		\n");
+	printf("     .-\\:      /-. 		\n");
+	printf("     | (|:.     |) | 		\n");
+	printf("      '-|:.     |-' 		\n");
+	printf("        \\::.   / 		\n");
+	printf("         '::. .' 		\n");
+	printf("           ) ( 			\n");
+	printf("         _.' '._ 		\n");
+	printf("        '-------' 		\033[m\n\n");
+
+	addword();
+	addranking();
 }
 
 
+void printDerrota()
+{
+	printf("\n\033[33mPuxa, você foi enforcado!\033[m\n");
+	printf("A palavra era **\033[32m%s\033[m**\n\n", palavrasecreta);
 
+	printf("\033[31m      _______________ 			\n");
+	printf("     /               \\ 		\n");
+	printf("    /                 \\ 		\n");
+	printf("  //                   \\/\\ 		\n");
+	printf("  \\|    XXXX    XXXX   | / 		\n");
+	printf("   |    XXXX    XXXX   |/ 		\n");
+	printf("   |    XXX      XXX   | 		\n");
+	printf("   |                   | 		\n");
+	printf("    \\__     XXX      __/ 		\n");
+	printf("      |\\    XXX     /| 		\n");
+	printf("      | |           | | 		\n");
+	printf("      | I I I I I I I | 		\n");
+	printf("      |  I I I I I I  | 		\n");
+	printf("      \\_             _/ 		\n");
+	printf("        \\_         _/ 			\n");
+	printf("          \\_______/ 			\033[m\n\n");
+}
 
 int main() {
 
-abertura();
-escolhepalavra();
-chooselevel();
+	abertura();
+	escolhepalavra();
+	chooselevel();
 
-do {
+	do {
 
-desenhaforca();
-chuta();
+		desenhaforca();
+		chuta();
 
-} while(!ganhou() && !enforcou());
+	} while(!ganhou() && !enforcou());
 
-calculapontos();
+	calculapontos();
 
-if(ganhou()) {
-
-printf("\n\033[32mParabéns, você ganhou!\033[m");
-printf("\nVoce fez %d pontos!\n\n", pontos);
-printf("\033[33m      ___________ 		\n");
-printf("     '._==_==_=_.' 		\n");
-printf("     .-\\:      /-. 		\n");
-printf("     | (|:.     |) | 		\n");
-printf("      '-|:.     |-' 		\n");
-printf("        \\::.   / 		\n");
-printf("         '::. .' 		\n");
-printf("           ) ( 			\n");
-printf("         _.' '._ 		\n");
-printf("        '-------' 		\033[m\n\n");
-
-addword();
-addranking();
-
-} else {
-
-printf("\n\033[33mPuxa, você foi enforcado!\033[m\n");
-printf("A palavra era **\033[32m%s\033[m**\n\n", palavrasecreta);
-
-printf("\033[31m      _______________ 			\n");
-printf("     /               \\ 		\n");
-printf("    /                 \\ 		\n");
-printf("  //                   \\/\\ 		\n");
-printf("  \\|    XXXX    XXXX   | / 		\n");
-printf("   |    XXXX    XXXX   |/ 		\n");
-printf("   |    XXX      XXX   | 		\n");
-printf("   |                   | 		\n");
-printf("    \\__     XXX      __/ 		\n");
-printf("      |\\    XXX     /| 		\n");
-printf("      | |           | | 		\n");
-printf("      | I I I I I I I | 		\n");
-printf("      |  I I I I I I  | 		\n");
-printf("      \\_             _/ 		\n");
-printf("        \\_         _/ 			\n");
-printf("          \\_______/ 			\033[m\n\n");
-
-}
-
+	if(ganhou())
+		printVitoria();
+	else
+		printDerrota();
 }
